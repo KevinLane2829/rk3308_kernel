@@ -12,7 +12,7 @@
 	compatible = "rockchip,rk3308b-evb-amic-v10", "rockchip,rk3308";
 
 	vad_acodec_sound: vad-acodec-sound {
-		status = "okay";
+		status = "disabled";
 		compatible = "rockchip,multicodecs-card";
 		rockchip,card-name = "rockchip,rk3308-vad";
 		rockchip,codec-hp-det;
@@ -20,6 +20,50 @@
 		rockchip,cpu = <&i2s_8ch_2>;
 		rockchip,codec = <&acodec>, <&vad>;
 	};
+
+	// codec for Analog/AES
+	dummy_codec: dummy-codec {
+		status = "okay";
+		compatible = "rockchip,dummy-codec";
+		#sound-dai-cells = <0>;
+		clocks = <&cru SCLK_I2S0_8CH_TX_OUT>;
+		clock-names = "mclk";
+	};
+
+	// codec for dante
+	dante: dante {
+		status = "okay";
+		compatible = "rockchip,dummy-codec";
+		#sound-dai-cells = <0>;
+		// clocks = <&cru SCLK_I2S1_8CH_TX_OUT>;
+		// clock-names = "mclk";
+	};
+
+	// card 0 - i2s0
+	// ANA & AES use with i2s0
+	ana_aes_sound: ana-aes-sound {
+		status = "okay";
+		compatible = "rockchip,multicodecs-card";
+		rockchip,card-name = "rockchip,rk3308b-ana_aes";
+		rockchip,mclk-fs = <256>;
+		rockchip,cpu = <&i2s_8ch_0>;
+		rockchip,codec = <&dummy_codec>;
+		rockchip,format = "i2s";
+	};	
+
+	// card1 - i2s1
+	// Dante use with i2s1
+	dante_sound: dante-sound {
+		status = "okay";
+		compatible = "rockchip,multicodecs-card";
+		rockchip,card-name = "rockchip,rk3308b-dante";
+		rockchip,bitclock-master =  <&dante>;
+		rockchip,frame-master = <&dante>;
+		rockchip,mclk-fs = <256>;
+		rockchip,cpu = <&i2s_8ch_1>;
+		rockchip,codec = <&dante>;
+		rockchip,format = "i2s";
+	};			
 };
 
 &acodec {
@@ -34,22 +78,63 @@
 };
 
 &bluetooth_sound {
-	status = "okay";
+	status = "disabled";
 };
 
 &i2s_8ch_0 {
 	status = "okay";
+	rockchip,i2s-rx-route = <0 1 2 3>;
+	rockchip,i2s-tx-route = <0 1 2 3>;
+	rockchip,clk-trcm = <0>;
+	rockchip,io-multiplex;
+	rockchip,bclk-fs = <64>;
 	#sound-dai-cells = <0>;
-	rockchip,clk-trcm = <1>;
+	// rockchip,no-dmaengine;
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2s_8ch_0_sclktx
+			 &i2s_8ch_0_sclkrx
 		     &i2s_8ch_0_lrcktx
+		     &i2s_8ch_0_lrckrx
 		     &i2s_8ch_0_sdi0
-		     &i2s_8ch_0_sdo2>;
+		     &i2s_8ch_0_sdi1
+		     &i2s_8ch_0_sdi2
+		     &i2s_8ch_0_sdi3
+		     &i2s_8ch_0_sdo0
+		     &i2s_8ch_0_sdo1
+			 &i2s_8ch_0_mclk>;
+};
+
+&i2s_8ch_1 {
+	status = "okay";
+	rockchip,i2s-rx-route = <0 1 2 3>;
+	rockchip,i2s-tx-route = <0 1 2 3>;
+	rockchip,clk-trcm = <2>;
+	rockchip,bclk-fs = <64>;
+	#sound-dai-cells = <0>;
+	// rockchip,no-dmaengine;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_1_m0_sclktx
+		 &i2s_8ch_1_m0_sclkrx
+		 &i2s_8ch_1_m0_lrcktx
+		 &i2s_8ch_1_m0_lrckrx
+		 &i2s_8ch_1_m0_sdi0
+	     &i2s_8ch_1_m0_sdo0
+		 &i2s_8ch_1_m0_sdo1_sdi3
+		 &i2s_8ch_1_m0_sdo2_sdi2
+		 &i2s_8ch_1_m0_sdo3_sdi1
+		 &i2s_8ch_1_m0_mclk>;
+};
+
+&emmc {
+	status = "okay";
+};
+
+&mac {
+    status = "okay";
 };
 
 &vad {
-	status = "okay";
+	status = "disabled";
 	rockchip,audio-src = <&i2s_8ch_2>;
 	rockchip,det-channel = <0>;
 	rockchip,buffer-time-ms = <200>;

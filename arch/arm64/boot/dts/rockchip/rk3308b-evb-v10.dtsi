@@ -11,7 +11,7 @@
 	compatible = "rockchip,rk3308b-evb-v10", "rockchip,rk3308";
 
 	chosen {
-		bootargs = "earlycon=uart8250,mmio32,0xff0e0000 console=ttyFIQ0 root=PARTUUID=614e0000-0000 rootfstype=squashfs rootwait snd_aloop.index=7 snd_aloop.use_raw_jiffies=1";
+		bootargs = "earlycon=uart8250,mmio32,0xff0e0000 console=ttyFIQ0 root=PARTUUID=614e0000-0000 rootfstype=ext2 rootwait snd_aloop.index=7 snd_aloop.use_raw_jiffies=1";
 	};
 
 	acodec_sound: acodec-sound {
@@ -251,7 +251,7 @@
 };
 
 &acodec {
-	status = "okay";
+	status = "disabled";
 
 	rockchip,no-deep-low-power;
 	hp-ctl-gpios = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
@@ -272,9 +272,18 @@
 };
 
 &rk3308bs_cpu0_opp_table {
-	opp-1008000000 {
-		status = "okay";
+	opp-408000000 {
+		status = "disabled";
+	};	
+	opp-600000000 {
+		status = "disabled";
 	};
+	opp-816000000 {
+		status = "disabled";
+	};	
+	opp-1008000000 {
+		status = "disabled";
+	};	
 	opp-1104000000 {
 		status = "okay";
 	};
@@ -307,10 +316,13 @@
 
 	vccio0-supply = <&vcc_io>;
 	vccio1-supply = <&vcc_io>;
-	vccio2-supply = <&vccio_sdio>;
-	vccio3-supply = <&vccio_flash>;
+	// vccio2-supply = <&vccio_sdio>;
+	vccio2-supply = <&vcc_io>;
+	// vccio3-supply = <&vccio_flash>;       // 新板AMODv1.1 1.8v
+	vccio3-supply = <&vcc_io>;            // 旧板AMODv1.0 3.3v
 	vccio4-supply = <&vcc_io>;
-	vccio5-supply = <&vccio_sdio>;
+	// vccio5-supply = <&vccio_sdio>;
+	vccio5-supply = <&vcc_io>;
 };
 
 &i2c1 {
@@ -662,7 +674,7 @@
 };
 
 &i2s_8ch_2 {
-	status = "okay";
+	status = "disabled";
 };
 
 &mac {
@@ -671,8 +683,10 @@
 	assigned-clock-parents = <&mac_clkin>;
 	clock_in_out = "input";
 	pinctrl-names = "default";
-	pinctrl-0 = <&rmiim1_pins &macm1_refclk>;
-	snps,reset-gpio = <&gpio4 RK_PC0 GPIO_ACTIVE_LOW>;
+	// pinctrl-0 = <&rmiim1_pins &macm1_refclk>;
+	pinctrl-0 = <&rmii_pins &mac_refclk>;
+	// snps,reset-gpio = <&gpio4 RK_PC0 GPIO_ACTIVE_LOW>;
+	snps,reset-gpio = <&gpio0 RK_PA6 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 50000 50000>;
 	status = "disable";
